@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Katherine & Kaz 💌</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --lilac:       #b48fcf;
+      --lilac-deep:  #8b5fad;
+      --lilac-lt:    #ddc8ee;
+      --lilac-pale:  #f3ecf9;
+      --cream:       #faf7fd;
+      --blush:       #ede0f5;
+      --gold:        #c9a87b;
+      --text:        #2e1f3e;
+      --text-lt:     #7a5c94;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ── Floating petals background ── */
+    .hearts-bg {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    }
+    .hb {
+      position: absolute;
+      font-size: 1.4rem;
+      opacity: 0;
+      animation: floatUp 8s ease-in infinite;
+    }
+    @keyframes floatUp {
+      0%   { opacity: 0;   transform: translateY(0)   rotate(0deg); }
+      10%  { opacity: .35; }
+      90%  { opacity: .15; }
+      100% { opacity: 0;   transform: translateY(-100vh) rotate(25deg); }
+    }
+
+    /* ── Main card ── */
+    #app {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 2rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 2rem;
+      padding: 3rem 3.5rem;
+      max-width: 520px; width: 100%;
+      box-shadow: 0 8px 48px rgba(139,95,173,.18), 0 2px 8px rgba(0,0,0,.06);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 5px;
+      background: linear-gradient(90deg, var(--lilac-lt), var(--lilac-deep), var(--gold), var(--lilac-deep), var(--lilac-lt));
+    }
+
+    /* ── Screens ── */
+    .screen { display: none; animation: fadeIn .5s ease both; }
+    .screen.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Emoji ── */
+    .emoji { font-size: 3.5rem; margin-bottom: 1rem; display: block;
+             animation: bounce 2.5s ease infinite; }
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+
+    /* ── Typography ── */
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem; font-weight: 600;
+      color: var(--lilac-deep); line-height: 1.2;
+      margin-bottom: .6rem;
+    }
+    h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem; font-weight: 600;
+      color: var(--lilac-deep); margin-bottom: .8rem;
+    }
+    p {
+      color: var(--text-lt); font-weight: 300;
+      line-height: 1.7; margin-bottom: 1.8rem;
+      font-size: 1.05rem;
+    }
+
+    /* ── Yes / No buttons ── */
+    .btn-row {
+      display: flex; gap: 1rem; justify-content: center;
+      align-items: center; margin-top: .5rem;
+      position: relative; height: 60px;
+    }
+
+    .btn {
+      border: none; cursor: pointer; border-radius: 50px;
+      font-family: 'DM Sans', sans-serif; font-weight: 500;
+      font-size: 1.1rem; padding: .75rem 2.2rem;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+
+    .btn-yes {
+      background: var(--lilac-deep);
+      color: #fff;
+      box-shadow: 0 4px 18px rgba(139,95,173,.45);
+    }
+    .btn-yes:hover { box-shadow: 0 6px 24px rgba(139,95,173,.6); }
+
+    .btn-no-placeholder {
+      /* reserves space so Yes button stays centered */
+      display: inline-block;
+      width: 120px; height: 48px;
+    }
+
+    .btn-no {
+      background: var(--blush);
+      color: var(--lilac-deep);
+      position: fixed;
+      white-space: nowrap;
+      z-index: 9999;
+      transition: left .22s cubic-bezier(.34,1.56,.64,1),
+                  top  .22s cubic-bezier(.34,1.56,.64,1),
+                  font-size .3s;
+    }
+
+    /* ── Restaurant options ── */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .85rem;
+      margin-top: 1rem;
+    }
+    .option-btn {
+      border: 2px solid var(--lilac-lt);
+      background: #fff;
+      border-radius: 1rem;
+      padding: 1.1rem .8rem;
+      cursor: pointer;
+      transition: all .2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .option-btn:hover {
+      border-color: var(--lilac-deep);
+      background: var(--blush);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(139,95,173,.18);
+    }
+    .option-btn .oe { font-size: 2rem; display: block; margin-bottom: .4rem; }
+    .option-btn .ol { font-size: .95rem; color: var(--text); font-weight: 400; }
+
+    /* ── Calendar screen ── */
+    .calendar-wrap { margin-top: 1rem; }
+
+    .cal-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: .8rem;
+    }
+    .cal-nav button {
+      background: var(--blush); border: none; border-radius: 50%;
+      width: 32px; height: 32px; cursor: pointer; font-size: 1rem;
+      color: var(--lilac-deep); transition: background .2s;
+    }
+    .cal-nav button:hover { background: var(--lilac-lt); }
+    .cal-month {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem; font-weight: 600; color: var(--lilac-deep);
+    }
+
+    .cal-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      gap: 4px; margin-bottom: 1rem;
+    }
+    .cal-dow {
+      font-size: .7rem; color: var(--text-lt); font-weight: 500;
+      padding: .3rem 0; text-align: center; letter-spacing: .05em;
+    }
+    .cal-day {
+      aspect-ratio: 1; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .88rem; cursor: pointer;
+      transition: all .15s; border: none; background: none;
+      color: var(--text); font-family: 'DM Sans', sans-serif;
+    }
+    .cal-day:hover:not(.empty):not(.past) {
+      background: var(--lilac-lt); color: var(--lilac-deep);
+    }
+    .cal-day.selected {
+      background: var(--lilac-deep) !important; color: #fff !important;
+      font-weight: 500;
+      box-shadow: 0 3px 12px rgba(139,95,173,.4);
+    }
+    .cal-day.today {
+      border: 2px solid var(--lilac);
+      color: var(--lilac-deep); font-weight: 500;
+    }
+    .cal-day.past { color: #ccc; cursor: default; }
+    .cal-day.empty { cursor: default; }
+
+    /* Time picker */
+    .time-row {
+      display: flex; gap: .6rem; justify-content: center;
+      flex-wrap: wrap; margin-bottom: 1.4rem;
+    }
+    .time-chip {
+      background: var(--blush); border: 2px solid transparent;
+      color: var(--lilac-deep); border-radius: 50px;
+      padding: .4rem 1rem; font-size: .9rem; cursor: pointer;
+      transition: all .15s; font-family: 'DM Sans', sans-serif;
+    }
+    .time-chip:hover { border-color: var(--lilac); background: var(--lilac-pale); }
+    .time-chip.selected {
+      background: var(--lilac-deep); color: #fff; border-color: var(--lilac-deep);
+      box-shadow: 0 3px 10px rgba(139,95,173,.35);
+    }
+
+    .time-label {
+      font-size: .8rem; color: var(--text-lt); margin-bottom: .5rem;
+      text-transform: uppercase; letter-spacing: .08em;
+    }
+
+    .btn-confirm {
+      background: var(--lilac-deep); color: #fff;
+      border: none; border-radius: 50px; padding: .8rem 2.5rem;
+      font-family: 'DM Sans', sans-serif; font-size: 1.05rem; font-weight: 500;
+      cursor: pointer; margin-top: .5rem;
+      box-shadow: 0 4px 18px rgba(139,95,173,.4);
+      transition: transform .15s, box-shadow .15s;
+      opacity: .4; pointer-events: none;
+    }
+    .btn-confirm.ready {
+      opacity: 1; pointer-events: auto;
+    }
+    .btn-confirm.ready:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(139,95,173,.55);
+    }
+
+    /* ── Confirm screen ── */
+    .confirm-emoji { font-size: 4rem; display: block; margin-bottom: .8rem;
+                     animation: pop .4s cubic-bezier(.34,1.56,.64,1) both; }
+    @keyframes pop {
+      from { transform: scale(0); } to { transform: scale(1); }
+    }
+
+    .details-card {
+      background: var(--lilac-pale);
+      border: 1.5px solid var(--lilac-lt);
+      border-radius: 1.2rem;
+      padding: 1.2rem 1.4rem;
+      margin: 0 auto 1.4rem;
+      text-align: left;
+    }
+    .detail-row {
+      display: flex; align-items: center; gap: .7rem;
+      padding: .45rem 0;
+    }
+    .detail-row:not(:last-child) {
+      border-bottom: 1px solid var(--lilac-lt);
+    }
+    .detail-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .detail-label { font-size: .75rem; color: var(--text-lt); text-transform: uppercase; letter-spacing: .06em; }
+    .detail-val { font-size: 1rem; color: var(--text); font-weight: 500; }
+
+    .screenshot-note {
+      background: linear-gradient(135deg, var(--lilac-deep), #6b3f8a);
+      color: #fff;
+      border-radius: 1rem;
+      padding: 1rem 1.2rem;
+      font-size: .95rem;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+    .screenshot-note strong { display: block; font-size: 1.05rem; margin-bottom: .2rem; }
+
+    /* ── Confetti burst ── */
+    .confetti-wrap {
+      position: fixed; inset: 0; pointer-events: none; z-index: 999;
+    }
+    .conf {
+      position: absolute;
+      width: 9px; height: 9px;
+      border-radius: 2px;
+      opacity: 0;
+    }
+    @keyframes confFall {
+      0%   { transform: translateY(-40px) rotate(0deg);   opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ── Back button ── */
+    .btn-back {
+      display: inline-flex; align-items: center; gap: .35rem;
+      background: none; border: none; cursor: pointer;
+      color: var(--text-lt); font-family: 'DM Sans', sans-serif;
+      font-size: .88rem; padding: .3rem .5rem;
+      border-radius: 50px; margin-bottom: .8rem;
+      transition: color .15s, background .15s;
+    }
+    .btn-back:hover { color: var(--lilac-deep); background: var(--blush); }
+    .btn-back svg { width: 14px; height: 14px; }
+
+    /* ── Divider ── */
+    .divider {
+      width: 50px; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--lilac-lt), transparent);
+      margin: 1rem auto 1.6rem;
+    }
+
+    @media (max-width: 480px) {
+      #app { padding: 1rem; align-items: flex-start; padding-top: 1.5rem; }
+      .card { padding: 2rem 1.4rem; border-radius: 1.5rem; }
+      h1 { font-size: 1.65rem; }
+      h2 { font-size: 1.4rem; }
+      .options-grid { grid-template-columns: 1fr 1fr; gap: .6rem; }
+      .option-btn { padding: .85rem .5rem; }
+      .option-btn .oe { font-size: 1.6rem; }
+      .cal-day { font-size: .82rem; min-height: 36px; }
+      .cal-grid { gap: 2px; }
+      .time-chip { padding: .38rem .75rem; font-size: .85rem; }
+      .btn-confirm { width: 100%; }
+      .details-card { padding: 1rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- floating petals -->
+<div class="hearts-bg" id="heartsBg"></div>
+
+<!-- confetti layer -->
+<div class="confetti-wrap" id="confettiWrap"></div>
+
+<!-- No button lives here, outside the card, so CSS transforms on .screen don't affect fixed positioning -->
+<button class="btn btn-no" id="noBtn"
+  onmousemove="scheduleRunAway(event.clientX, event.clientY)"
+  onclick="onNoClick()">No 🙈</button>
+
+<div id="app">
+  <div class="card" id="mainCard">
+
+    <!-- SCREEN 1: The ask -->
+    <div class="screen active" id="screen1">
+      <span class="emoji">💌</span>
+      <h1>Hey, I have a question…</h1>
+      <div class="divider"></div>
+      <p>Hey Katherine! It's been a little while, so I just wanted to ask - —<br>
+         <em>would you like to go on a date with me?</em></p>
+
+      <div class="btn-row" id="btnRow">
+        <button class="btn btn-yes" onclick="onYes()">Yes! 🥰</button>
+        <div class="btn-no-placeholder" id="noBtnPlaceholder"></div>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: Pick a cuisine -->
+    <div class="screen" id="screen2">
+      <button class="btn-back" onclick="goBack(1)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 3L5 8l5 5"/></svg>
+        Back
+      </button>
+      <span class="emoji">🍽️</span>
+      <h2>Sweetttt!! 🎉</h2>
+      <div class="divider"></div>
+      <p>I hoped you'd say yes 😊<br>So — what are you feeling?</p>
+
+      <div class="options-grid">
+        <button class="option-btn" onclick="pickPlace('Italian','🍝')">
+          <span class="oe">🍝</span><span class="ol">Italian</span>
+        </button>
+        <button class="option-btn" onclick="pickPlace('Pizza','🍕')">
+          <span class="oe">🍕</span><span class="ol">Pizza</span>
+        </button>
+        <button class="option-btn" onclick="pickPlace('Mexican','🌮')">
+          <span class="oe">🌮</span><span class="ol">Mexican</span>
+        </button>
+        <button class="option-btn" onclick="pickPlace('Thai','🍜')">
+          <span class="oe">🍜</span><span class="ol">Thai</span>
+        </button>
+        <button class="option-btn" onclick="pickPlace('Sushi','🍣')">
+          <span class="oe">🍣</span><span class="ol">Sushi</span>
+        </button>
+        <button class="option-btn" onclick="pickPlace('Tea','🫖')">
+          <span class="oe">🫖</span><span class="ol">Tea</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: Pick date & time -->
+    <div class="screen" id="screen3">
+      <button class="btn-back" onclick="goBack(2)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 3L5 8l5 5"/></svg>
+        Back
+      </button>
+      <span class="emoji">📅</span>
+      <h2>When works for you?</h2>
+      <div class="divider"></div>
+
+      <div class="calendar-wrap">
+        <div class="cal-nav">
+          <button onclick="changeMonth(-1)">&#8249;</button>
+          <span class="cal-month" id="calMonth"></span>
+          <button onclick="changeMonth(1)">&#8250;</button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+
+        <div class="time-label">Pick a time</div>
+        <div class="time-row" id="timeRow"></div>
+
+        <button class="btn-confirm" id="confirmBtn" onclick="confirmDateTime()">
+          Confirm ✨
+        </button>
+      </div>
+    </div>
+
+    <!-- SCREEN 4: All confirmed! -->
+    <div class="screen" id="screen4">
+      <button class="btn-back" onclick="goBack(3)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 3L5 8l5 5"/></svg>
+        Back
+      </button>
+      <span class="confirm-emoji">🌸</span>
+      <h2>It's a date!</h2>
+      <div class="divider"></div>
+
+      <div class="details-card" id="detailsCard">
+        <div class="detail-row">
+          <span class="detail-icon">🍽️</span>
+          <div>
+            <div class="detail-label">Cuisine</div>
+            <div class="detail-val" id="finalCuisine"></div>
+          </div>
+        </div>
+        <div class="detail-row">
+          <span class="detail-icon">📅</span>
+          <div>
+            <div class="detail-label">Date</div>
+            <div class="detail-val" id="finalDate"></div>
+          </div>
+        </div>
+        <div class="detail-row">
+          <span class="detail-icon">🕐</span>
+          <div>
+            <div class="detail-label">Time</div>
+            <div class="detail-val" id="finalTime"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="screenshot-note">
+        <strong>📸 Screenshot this!</strong>
+        Send it back to Kaz so he knows you're in 💜
+      </div>
+
+      <p style="font-size:.9rem; color:var(--lilac); margin-bottom:0;">Looking forward to seeing you! ✨</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  /* ── Floating hearts ── */
+  const heartsBg = document.getElementById('heartsBg');
+  const HEARTS = ['💜','🌸','✨','💐','🫧','🌷','💫','🪻'];
+  for (let i = 0; i < 22; i++) {
+    const h = document.createElement('span');
+    h.className = 'hb';
+    h.textContent = HEARTS[Math.floor(Math.random() * HEARTS.length)];
+    h.style.left = Math.random() * 100 + 'vw';
+    h.style.bottom = '-3rem';
+    h.style.animationDelay = (Math.random() * 8) + 's';
+    h.style.animationDuration = (6 + Math.random() * 6) + 's';
+    heartsBg.appendChild(h);
+  }
+
+  /* ── No button: smooth drift away from cursor / finger ── */
+  const noBtn = document.getElementById('noBtn');
+  let noBtnX = 0, noBtnY = 0;
+  let escapeCount = 0;
+
+  // Position the No button over its placeholder so it appears in the right spot
+  (function initNoBtn() {
+    const placeholder = document.getElementById('noBtnPlaceholder');
+    const r = placeholder.getBoundingClientRect();
+    console.log('[NoBtn] placeholder rect:', JSON.stringify({top: r.top, left: r.left, width: r.width, height: r.height}));
+    noBtnX = r.left;
+    noBtnY = r.top;
+    noBtn.style.left = noBtnX + 'px';
+    noBtn.style.top  = noBtnY + 'px';
+    console.log('[NoBtn] set to left:', noBtn.style.left, 'top:', noBtn.style.top);
+    console.log('[NoBtn] final rect:', JSON.stringify(noBtn.getBoundingClientRect()));
+  })();
+
+  // Touch support: flee from finger on touchmove anywhere on screen
+  document.addEventListener('touchmove', function(e) {
+    if (document.getElementById('screen1').classList.contains('active')) {
+      const t = e.touches[0];
+      scheduleRunAway(t.clientX, t.clientY);
+    }
+  }, { passive: true });
+
+  // Also jump away on touchstart of the button itself
+  noBtn.addEventListener('touchstart', function(e) {
+    const t = e.touches[0];
+    runAway(t.clientX, t.clientY);
+    e.preventDefault();
+  }, { passive: false });
+
+  // Throttle so we don't spam
+  let lastRunAway = 0;
+  function scheduleRunAway(cx, cy) {
+    const now = Date.now();
+    if (now - lastRunAway < 120) return;
+    lastRunAway = now;
+    runAway(cx, cy);
+  }
+
+  function runAway(mx, my) {
+    const bRect = noBtn.getBoundingClientRect();
+    const bCx = bRect.left + bRect.width / 2;
+    const bCy = bRect.top  + bRect.height / 2;
+
+    // Direction AWAY from mouse
+    let dx = bCx - mx;
+    let dy = bCy - my;
+    const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+    dx /= dist; dy /= dist;
+
+    const STEP = 110;
+    let newX = noBtnX + dx * STEP;
+    let newY = noBtnY + dy * STEP;
+
+    // Clamp to viewport with padding
+    const pad = 12;
+    const maxX = window.innerWidth  - bRect.width  - pad;
+    const maxY = window.innerHeight - bRect.height - pad;
+    newX = Math.max(pad, Math.min(maxX, newX));
+    newY = Math.max(pad, Math.min(maxY, newY));
+
+    noBtnX = newX;
+    noBtnY = newY;
+    noBtn.style.left = newX + 'px';
+    noBtn.style.top  = newY + 'px';
+
+    escapeCount++;
+    noBtn.textContent = NO_MESSAGES[escapeCount % NO_MESSAGES.length];
+  }
+
+  function onNoClick() {
+    escapeCount++;
+    noBtn.textContent = NO_MESSAGES[escapeCount % NO_MESSAGES.length];
+    runAway(window.innerWidth / 2, window.innerHeight / 2);
+  }
+
+  const NO_MESSAGES = [
+    'No 🙈',
+    'nope 😣',
+    'still no 😤',
+    'nice try 😏',
+    'not a chance 🫣',
+    'you wish 😝',
+    'lol no 😂',
+    'run run run 🏃',
+    'catch me if u can 😜',
+    'never!! 🙅',
+    'okay fine… no 😒',
+    'absolutely not 💅',
+    'hard pass 🫠',
+  ];
+
+  /* ── Yes! ── */
+  function onYes() {
+    showScreen('screen2');
+    triggerConfetti();
+    noBtn.style.display = 'none';
+  }
+
+  /* ── Go back ── */
+  function goBack(toScreen) {
+    showScreen('screen' + toScreen);
+    if (toScreen === 1) {
+      // Restore the No button
+      noBtn.style.display = '';
+    }
+  }
+
+  /* ── Cuisine state ── */
+  let selectedCuisine = '';
+  let selectedCuisineEmoji = '';
+
+  function pickPlace(name, emoji) {
+    selectedCuisine = name;
+    selectedCuisineEmoji = emoji;
+    showScreen('screen3');
+    renderCalendar();
+    renderTimes();
+    triggerConfetti();
+  }
+
+  /* ── Calendar ── */
+  let calYear, calMonth;
+  let selectedDate = null;
+  let selectedTime = null;
+
+  const MONTHS = ['January','February','March','April','May','June',
+                  'July','August','September','October','November','December'];
+  const DAYS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+  function initCalendar() {
+    const now = new Date();
+    calYear  = now.getFullYear();
+    calMonth = now.getMonth();
+  }
+
+  function changeMonth(delta) {
+    calMonth += delta;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    if (calMonth < 0)  { calMonth = 11; calYear--; }
+    renderCalendar();
+  }
+
+  function renderCalendar() {
+    if (calYear === undefined) initCalendar();
+    document.getElementById('calMonth').textContent = MONTHS[calMonth] + ' ' + calYear;
+
+    const grid = document.getElementById('calGrid');
+    grid.innerHTML = '';
+
+    // Day-of-week headers
+    DAYS.forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'cal-dow'; el.textContent = d;
+      grid.appendChild(el);
+    });
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+
+    // Empty cells
+    for (let i = 0; i < firstDay; i++) {
+      const el = document.createElement('button');
+      el.className = 'cal-day empty'; grid.appendChild(el);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(calYear, calMonth, d);
+      const el = document.createElement('button');
+      el.className = 'cal-day';
+      el.textContent = d;
+
+      if (date < today) {
+        el.classList.add('past');
+      } else {
+        if (date.toDateString() === today.toDateString()) el.classList.add('today');
+
+        const iso = date.toISOString().slice(0,10);
+        if (selectedDate === iso) el.classList.add('selected');
+
+        el.onclick = () => selectDate(iso, el);
+      }
+      grid.appendChild(el);
+    }
+  }
+
+  function selectDate(iso, el) {
+    selectedDate = iso;
+    document.querySelectorAll('.cal-day.selected').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    checkConfirmReady();
+  }
+
+  /* ── Times ── */
+  const TIMES = ['10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','5:00 PM',
+                 '6:00 PM','7:00 PM','7:30 PM','8:00 PM'];
+
+  function renderTimes() {
+    const row = document.getElementById('timeRow');
+    row.innerHTML = '';
+    TIMES.forEach(t => {
+      const chip = document.createElement('button');
+      chip.className = 'time-chip';
+      chip.textContent = t;
+      chip.onclick = () => selectTime(t, chip);
+      row.appendChild(chip);
+    });
+  }
+
+  function selectTime(t, el) {
+    selectedTime = t;
+    document.querySelectorAll('.time-chip.selected').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    checkConfirmReady();
+  }
+
+  function checkConfirmReady() {
+    const btn = document.getElementById('confirmBtn');
+    if (selectedDate && selectedTime) {
+      btn.classList.add('ready');
+    } else {
+      btn.classList.remove('ready');
+    }
+  }
+
+  /* ── Format date nicely ── */
+  function formatDate(iso) {
+    const [y,m,d] = iso.split('-').map(Number);
+    const date = new Date(y, m-1, d);
+    return date.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+  }
+
+  /* ── Confirm ── */
+  function confirmDateTime() {
+    if (!selectedDate || !selectedTime) return;
+
+    document.getElementById('finalCuisine').textContent = selectedCuisineEmoji + ' ' + selectedCuisine;
+    document.getElementById('finalDate').textContent    = formatDate(selectedDate);
+    document.getElementById('finalTime').textContent    = selectedTime;
+
+    showScreen('screen4');
+    triggerConfetti();
+  }
+
+  /* ── Screen transition ── */
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  /* ── Confetti ── */
+  const CONF_COLORS = ['#b48fcf','#ddc8ee','#8b5fad','#f3ecf9','#c9a87b','#e8d5f5','#6b3f8a'];
+  const wrap = document.getElementById('confettiWrap');
+
+  function triggerConfetti() {
+    wrap.innerHTML = '';
+    for (let i = 0; i < 80; i++) {
+      const c = document.createElement('div');
+      c.className = 'conf';
+      c.style.left = (10 + Math.random() * 80) + 'vw';
+      c.style.top  = '-20px';
+      c.style.background = CONF_COLORS[Math.floor(Math.random() * CONF_COLORS.length)];
+      c.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+      c.style.width  = (6 + Math.random() * 8) + 'px';
+      c.style.height = (6 + Math.random() * 8) + 'px';
+      c.style.animation = `confFall ${1.2 + Math.random() * 1.8}s ${Math.random() * .6}s ease-in forwards`;
+      wrap.appendChild(c);
+    }
+    setTimeout(() => { wrap.innerHTML = ''; }, 3000);
+  }
+
+  /* Init */
+  initCalendar();
+</script>
+</body>
+</html>
